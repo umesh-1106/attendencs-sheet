@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Host/Admin Login | KMCE Attendance System</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#1d2671);
+background-size:400% 400%;
+animation:bg 12s ease infinite;
+}
+
+@keyframes bg{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+.login-card{
+width:420px;
+max-width:92%;
+background:rgba(255,255,255,.12);
+backdrop-filter:blur(18px);
+padding:35px;
+border-radius:20px;
+box-shadow:0 20px 40px rgba(0,0,0,.35);
+text-align:center;
+color:white;
+}
+
+.logo{
+width:100px;
+height:100px;
+border-radius:50%;
+background:white;
+padding:8px;
+margin-bottom:15px;
+}
+
+h2{
+margin-bottom:10px;
+}
+
+p{
+color:#ddd;
+margin-bottom:25px;
+}
+
+.input-group{
+text-align:left;
+margin-bottom:18px;
+}
+
+.input-group label{
+display:block;
+margin-bottom:6px;
+}
+
+.input-group input{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+outline:none;
+font-size:15px;
+}
+
+.actions{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+font-size:14px;
+}
+
+.actions a{
+color:#00d4ff;
+text-decoration:none;
+}
+
+.btn{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:30px;
+font-size:17px;
+cursor:pointer;
+background:#00bfff;
+color:white;
+transition:.3s;
+}
+
+.btn:hover{
+background:#0099ff;
+transform:scale(1.03);
+}
+
+.back{
+background:#555;
+}
+
+.back:hover{
+background:#333;
+}
+
+.footer{
+margin-top:20px;
+font-size:13px;
+color:#ccc;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="login-card">
+
+<img src="logo.png" class="logo" alt="College Logo">
+
+<h2>Host / Admin Login</h2>
+
+<p>Keshava Memorial College of Engineering</p>
+
+<div class="input-group">
+<label>Admin ID</label>
+<input type="text" id="adminId" placeholder="Enter Admin ID">
+</div>
+
+<div class="input-group">
+<label>Password</label>
+<input type="password" id="adminPassword" placeholder="Enter Password">
+</div>
+
+<div class="actions">
+
+<label>
+<input type="checkbox" onclick="showPassword()">
+Show Password
+</label>
+
+<a href="#">Forgot Password?</a>
+
+</div>
+
+<button class="btn" onclick="loginAdmin()">Login</button>
+
+<button class="btn back" onclick="window.location='index.html'">
+Back to Home
+</button>
+
+<div class="footer">
+© 2026 KMCE Attendance Management System
+</div>
+
+</div>
+
+<script>
+
+function showPassword(){
+
+let pass=document.getElementById("adminPassword");
+
+if(pass.type==="password")
+pass.type="text";
+else
+pass.type="password";
+
+}
+
+function loginAdmin(){
+
+let id=document.getElementById("adminId").value.trim();
+
+let pass=document.getElementById("adminPassword").value.trim();
+
+/* Demo Login */
+
+if(id==="admin" && pass==="admin123"){
+
+alert("Welcome Host");
+
+window.location.href="admin-dashboard.html";
+
+}
+else{
+
+alert("Invalid Admin ID or Password");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

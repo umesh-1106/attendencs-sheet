@@ -1,0 +1,57 @@
+// ---------- SUBMIT ATTENDANCE ----------
+
+function submitAttendance(){
+
+    let absentStudents = [];
+
+    let presentStudents = [];
+
+    // Find present and absent students
+    for(let i=1;i<=56;i++){
+
+        let box = document.getElementById("student"+i);
+
+        if(box.classList.contains("absent")){
+            absentStudents.push(i);
+        }else{
+            presentStudents.push(i);
+        }
+
+    }
+
+    let attendance = {
+
+        college : "KESHAVA MEMORIAL COLLEGE OF ENGINEERING",
+
+        department : department,
+
+        teacher : "Teacher",
+
+        date : document.getElementById("date").innerHTML,
+
+        time : document.getElementById("time").innerHTML,
+
+        presentCount : presentStudents.length,
+
+        absentCount : absentStudents.length,
+
+        presentStudents : presentStudents,
+
+        absentStudents : absentStudents
+
+    };
+
+    // Read previous attendance
+    let history = JSON.parse(localStorage.getItem("attendanceHistory")) || [];
+
+    // Add new record
+    history.push(attendance);
+
+    // Save again
+    localStorage.setItem("attendanceHistory", JSON.stringify(history));
+
+    alert("Attendance Submitted Successfully!");
+
+    console.log(attendance);
+
+}

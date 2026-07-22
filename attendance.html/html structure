@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KMCE Attendance</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+
+color:white;
+
+padding:20px;
+
+min-height:100vh;
+
+}
+
+.container{
+
+max-width:1400px;
+
+margin:auto;
+
+}
+
+.header{
+
+background:rgba(255,255,255,.12);
+
+backdrop-filter:blur(15px);
+
+border-radius:20px;
+
+padding:20px;
+
+text-align:center;
+
+margin-bottom:20px;
+
+}
+
+.logo{
+
+width:90px;
+
+height:90px;
+
+border-radius:50%;
+
+background:white;
+
+padding:5px;
+
+margin-bottom:10px;
+
+}
+
+.header h1{
+
+font-size:32px;
+
+}
+
+.header h3{
+
+margin-top:10px;
+
+font-weight:400;
+
+color:#ddd;
+
+}
+
+.info{
+
+display:flex;
+
+justify-content:space-between;
+
+flex-wrap:wrap;
+
+margin-top:20px;
+
+gap:15px;
+
+font-size:17px;
+
+}
+
+.panel{
+
+margin-top:25px;
+
+background:rgba(255,255,255,.12);
+
+padding:20px;
+
+border-radius:20px;
+
+backdrop-filter:blur(15px);
+
+}
+
+.panel h2{
+
+margin-bottom:20px;
+
+}
+
+.controls{
+
+display:flex;
+
+gap:15px;
+
+flex-wrap:wrap;
+
+align-items:center;
+
+}
+
+.controls input{
+
+flex:1;
+
+padding:14px;
+
+border:none;
+
+border-radius:10px;
+
+font-size:16px;
+
+}
+
+button{
+
+padding:14px 30px;
+
+border:none;
+
+border-radius:30px;
+
+cursor:pointer;
+
+font-size:16px;
+
+background:#00bfff;
+
+color:white;
+
+transition:.3s;
+
+}
+
+button:hover{
+
+background:#0095ff;
+
+}
+
+.stats{
+
+margin-top:20px;
+
+display:flex;
+
+justify-content:space-around;
+
+font-size:22px;
+
+font-weight:bold;
+
+}
+
+.grid{
+
+margin-top:30px;
+
+display:grid;
+
+grid-template-columns:repeat(auto-fill,minmax(70px,1fr));
+
+gap:15px;
+
+}
+
+.student{
+
+height:70px;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+background:#28a745;
+
+border-radius:12px;
+
+font-size:22px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:.3s;
+
+user-select:none;
+
+}
+
+.student:hover{
+
+transform:scale(1.08);
+
+}
+
+.absent{
+
+background:#ff2b2b;
+
+}
+
+.present{
+
+background:#28a745;
+
+}
+
+.submit-area{
+
+margin-top:30px;
+
+display:flex;
+
+justify-content:center;
+
+gap:20px;
+
+flex-wrap:wrap;
+
+}
+
+@media(max-width:700px){
+
+.header h1{
+
+font-size:24px;
+
+}
+
+.info{
+
+flex-direction:column;
+
+text-align:center;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<img src="logo.png" class="logo">
+
+<h1>KESHAVA MEMORIAL COLLEGE OF ENGINEERING</h1>
+
+<h3>Attendance Management System</h3>
+
+<div class="info">
+
+<div>
+
+<b>Department :</b>
+
+<span id="department"></span>
+
+</div>
+
+<div>
+
+<b>Date :</b>
+
+<span id="date"></span>
+
+</div>
+
+<div>
+
+<b>Time :</b>
+
+<span id="time"></span>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<h2>Attendance</h2>
+
+<div class="controls">
+
+<input
+type="text"
+id="absentInput"
+placeholder="Enter absent roll numbers (Example: 2,5,10,18)"
+>
+
+<button onclick="markAbsent()">
+
+Mark Absent
+
+</button>
+
+<button onclick="resetAttendance()">
+
+Reset
+
+</button>
+
+</div>
+
+<div class="stats">
+
+<div>
+
+Present :
+
+<span id="presentCount">56</span>
+
+</div>
+
+<div>
+
+Absent :
+
+<span id="absentCount">0</span>
+
+</div>
+
+</div>
+
+<div class="grid" id="students">
+
+<!-- Student boxes will appear here -->
+
+</div>
+
+<div class="submit-area">
+
+<button onclick="submitAttendance()">
+
+Submit Attendance
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let department=localStorage.getItem("department") || "ECE";
+
+document.getElementById("department").innerHTML=department;
+
+function updateTime(){
+
+let now=new Date();
+
+document.getElementById("date").innerHTML=now.toLocaleDateString();
+
+document.getElementById("time").innerHTML=now.toLocaleTimeString();
+
+}
+
+setInterval(updateTime,1000);
+
+updateTime();

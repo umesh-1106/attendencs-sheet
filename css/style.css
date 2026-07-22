@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Admin - Department Management Portal</title>
+  <style>
+    :root {
+      --primary-600: #2563eb;
+      --primary-700: #1d4ed8;
+      --danger-600: #dc2626;
+      --danger-700: #b91c1c;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    aside { width: 260px; background: var(--bg-sidebar); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50; }
+    .brand { padding: 1.5rem; font-size: 1.15rem; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.75rem; }
+    .menu { list-style: none; padding: 1rem 0.75rem; flex: 1; }
+    .menu a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: #94a3b8; text-decoration: none; border-radius: var(--radius-sm); font-weight: 500; font-size: 0.95rem; transition: 0.2s; }
+    .menu a:hover, .menu a.active { background: var(--primary-600); color: white; }
+
+    /* Main Wrapper */
+    main { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-width: 0; }
+    header { height: 70px; background: var(--bg-card); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; }
+    .header-title { font-size: 1.25rem; font-weight: 700; }
+
+    .content { padding: 2rem; flex: 1; max-width: 1200px; width: 100%; margin: auto; }
+
+    /* Toolbar & Controls */
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .search-container { position: relative; flex: 1; max-width: 400px; min-width: 240px; }
+    .search-container input { width: 100%; padding: 0.65rem 0.9rem 0.65rem 2.4rem; border: 1px solid var(--border-light); border-radius: var(--radius-sm); outline: none; font-size: 0.95rem; background: var(--bg-card); }
+    .search-container input:focus { border-color: var(--primary-600); }
+    .search-icon { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    .btn { padding: 0.65rem 1.2rem; background: var(--primary-600); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: 0.2s; }
+    .btn:hover { background: var(--primary-700); }
+    .btn-danger { background: var(--danger-600); }
+    .btn-danger:hover { background: var(--danger-700); }
+    .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-light); }
+    .btn-outline:hover { background: #f1f5f9; }
+
+    /* Table Component */
+    .table-card { background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
+    th, td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-light); font-size: 0.9rem; }
+    th { background: #f8fafc; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+    tr:hover { background: #f8fafc; }
+    .actions { display: flex; gap: 0.5rem; }
+
+    /* Modal Overlay */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px); justify-content: center; align-items: center; padding: 1rem; z-index: 100; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg-card); border-radius: var(--radius-md); width: 100%; max-width: 450px; padding: 2rem; box-shadow: var(--shadow-lg); }
+    .modal h3 { margin-bottom: 1.25rem; font-size: 1.2rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .form-group input { width: 100%; padding: 0.65rem 0.9rem; border: 1px solid var(--border-light); border-radius: var(--radius-sm); outline: none; }
+    .form-group input:focus { border-color: var(--primary-600); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
+
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      aside { transform: translateX(-100%); transition: transform 0.3s ease; }
+      aside.mobile-show { transform: translateX(0); }
+      main { margin-left: 0; }
+      .menu-toggle { display: inline-flex !important; }
+    }
+    .menu-toggle { display: none; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-main); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar">
+    <div class="brand">
+      <span>🏛️</span> CollegePortal
+    </div>
+    <ul class="menu">
+      <li><a href="#">📊 Dashboard</a></li>
+      <li><a href="#" class="active">🏢 Departments</a></li>
+      <li><a href="#">👨‍🏫 Teachers</a></li>
+      <li><a href="#">🎓 Students</a></li>
+      <li><a href="#">📋 Attendance</a></li>
+      <li><a href="#">⚙️ Settings</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content App Shell -->
+  <main>
+    <header>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h1 class="header-title">Department Management</h1>
+      </div>
+      <div style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Admin Session Active</div>
+    </header>
+
+    <div class="content">
+      <div class="toolbar">
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search by code, name, or HOD..." oninput="handleSearch()">
+        </div>
+        <button class="btn" onclick="openModal()">➕ Add Department</button>
+      </div>
+
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Department Name</th>
+              <th>Head of Department</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Dynamically Rendered -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Form -->
+  <div class="modal-overlay" id="deptModal">
+    <div class="modal">
+      <h3 id="modalTitle">Add New Department</h3>
+      <form id="deptForm" onsubmit="saveDepartment(event)">
+        <input type="hidden" id="deptId">
+        <div class="form-group">
+          <label>Department Code (e.g. CSE, ECE)</label>
+          <input type="text" id="deptCode" placeholder="CSE" required>
+        </div>
+        <div class="form-group">
+          <label>Department Full Name</label>
+          <input type="text" id="deptName" placeholder="Computer Science & Engineering" required>
+        </div>
+        <div class="form-group">
+          <label>Head of Department (HOD)</label>
+          <input type="text" id="deptHod" placeholder="Dr. Alan Turing" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn">💾 Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Initial Seed Data if LocalStorage is empty
+    const defaultDepartments = [
+      { id: '1', code: 'CSE', name: 'Computer Science & Engineering', hod: 'Dr. Alan Turing' },
+      { id: '2', code: 'ECE', name: 'Electronics & Communication', hod: 'Dr. Shannon Vance' },
+      { id: '3', code: 'IT', name: 'Information Technology', hod: 'Dr. Grace Hopper' },
+      { id: '4', code: 'MECH', name: 'Mechanical Engineering', hod: 'Dr. Nikola Tesla' }
+    ];
+
+    let departments = JSON.parse(localStorage.getItem('col_departments')) || defaultDepartments;
+
+    function persistData() {
+      localStorage.setItem('col_departments', JSON.stringify(departments));
+    }
+
+    function renderTable(data = departments) {
+      const tbody = document.getElementById('tableBody');
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--text-muted);">No departments found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(d => `
+        <tr>
+          <td><strong>${d.code}</strong></td>
+          <td>${d.name}</td>
+          <td>${d.hod}</td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-outline" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="editDepartment('${d.id}')">✏️ Edit</button>
+              <button class="btn btn-danger" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="deleteDepartment('${d.id}')">🗑️ Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = departments.filter(d => 
+        d.code.toLowerCase().includes(query) || 
+        d.name.toLowerCase().includes(query) || 
+        d.hod.toLowerCase().includes(query)
+      );
+      renderTable(filtered);
+    }
+
+    function openModal(dept = null) {
+      document.getElementById('modalTitle').textContent = dept ? 'Edit Department' : 'Add New Department';
+      document.getElementById('deptId').value = dept ? dept.id : '';
+      document.getElementById('deptCode').value = dept ? dept.code : '';
+      document.getElementById('deptName').value = dept ? dept.name : '';
+      document.getElementById('deptHod').value = dept ? dept.hod : '';
+      document.getElementById('deptModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('deptModal').classList.remove('active');
+      document.getElementById('deptForm').reset();
+    }
+
+    function saveDepartment(e) {
+      e.preventDefault();
+      const id = document.getElementById('deptId').value;
+      const record = {
+        id: id || Date.now().toString(),
+        code: document.getElementById('deptCode').value.toUpperCase().trim(),
+        name: document.getElementById('deptName').value.trim(),
+        hod: document.getElementById('deptHod').value.trim()
+      };
+
+      if (id) {
+        departments = departments.map(d => d.id === id ? record : d);
+      } else {
+        departments.push(record);
+      }
+
+      persistData();
+      handleSearch();
+      closeModal();
+    }
+
+    function editDepartment(id) {
+      const dept = departments.find(d => d.id === id);
+      if (dept) openModal(dept);
+    }
+
+    function deleteDepartment(id) {
+      if (confirm('Are you sure you want to delete this department?')) {
+        departments = departments.filter(d => d.id !== id);
+        persistData();
+        handleSearch();
+      }
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('mobile-show');
+    }
+
+    // Initial render execution
+    renderTable();
+  </script>
+</body>
+</html>

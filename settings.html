@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - KMCE Attendance</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:#eef2f7;
+padding:20px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+h1{
+text-align:center;
+margin-bottom:25px;
+color:#0f172a;
+}
+
+label{
+display:block;
+margin-top:15px;
+margin-bottom:6px;
+font-weight:600;
+}
+
+input,textarea{
+width:100%;
+padding:12px;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:15px;
+}
+
+.logo{
+display:block;
+margin:20px auto;
+width:120px;
+height:120px;
+border-radius:50%;
+object-fit:cover;
+border:2px solid #ccc;
+background:#fff;
+}
+
+.buttons{
+margin-top:25px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+button{
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:#2563eb;
+color:white;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+.reset{
+background:#dc2626;
+}
+
+.reset:hover{
+background:#b91c1c;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>System Settings</h1>
+
+<img src="logo.png" id="logoPreview" class="logo">
+
+<label>College Name</label>
+<input type="text" id="collegeName">
+
+<label>College Address</label>
+<textarea id="collegeAddress" rows="3"></textarea>
+
+<label>Change College Logo</label>
+<input type="file" id="logoFile" accept="image/*">
+
+<div class="buttons">
+<button onclick="saveSettings()">Save Settings</button>
+<button class="reset" onclick="resetSettings()">Reset</button>
+<button onclick="window.location='admin-dashboard.html'">Back</button>
+</div>
+
+</div>
+
+<script>
+
+const defaultName="KESHAVA MEMORIAL COLLEGE OF ENGINEERING";
+const defaultAddress="Ranga Reddy District, Abdullapurmet, Chinthapalli Guda";
+
+document.getElementById("collegeName").value=
+localStorage.getItem("collegeName") || defaultName;
+
+document.getElementById("collegeAddress").value=
+localStorage.getItem("collegeAddress") || defaultAddress;
+
+let savedLogo=localStorage.getItem("collegeLogo");
+
+if(savedLogo){
+document.getElementById("logoPreview").src=savedLogo;
+}
+
+document.getElementById("logoFile").addEventListener("change",function(e){
+
+let file=e.target.files[0];
+
+if(!file) return;
+
+let reader=new FileReader();
+
+reader.onload=function(){
+
+document.getElementById("logoPreview").src=reader.result;
+
+};
+
+reader.readAsDataURL(file);
+
+});
+
+function saveSettings(){
+
+localStorage.setItem(
+"collegeName",
+document.getElementById("collegeName").value
+);
+
+localStorage.setItem(
+"collegeAddress",
+document.getElementById("collegeAddress").value
+);
+
+let logo=document.getElementById("logoPreview").src;
+
+localStorage.setItem("collegeLogo",logo);
+
+alert("Settings saved successfully!");
+
+}
+
+function resetSettings(){
+
+if(!confirm("Reset settings to default?")) return;
+
+localStorage.removeItem("collegeName");
+localStorage.removeItem("collegeAddress");
+localStorage.removeItem("collegeLogo");
+
+location.reload();
+
+}
+
+</script>
+
+</body>
+</html>

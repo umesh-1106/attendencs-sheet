@@ -1,0 +1,458 @@
+/* ==========================================================================
+   GLASSMORPHISM ATTENDANCE SYSTEM - MASTER STYLESHEET (attendance.css)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS & GLASSMORPHIC THEMING
+   -------------------------------------------------------------------------- */
+:root {
+  /* Brand Palette */
+  --primary-rgb: 99, 102, 241;
+  --primary: rgb(var(--primary-rgb));
+  --primary-hover: #4f46e5;
+  
+  /* Status Colors */
+  --present-rgb: 16, 185, 129;
+  --present: rgb(var(--present-rgb));
+  --absent-rgb: 239, 68, 68;
+  --absent: rgb(var(--absent-rgb));
+  --late-rgb: 245, 158, 11;
+  --late: rgb(var(--late-rgb));
+  --excused-rgb: 14, 165, 233;
+  --excused: rgb(var(--excused-rgb));
+
+  /* Light Theme Glass Tokens */
+  --bg-gradient-1: #e0e7ff;
+  --bg-gradient-2: #fae8ff;
+  --bg-gradient-3: #dbeafe;
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-hover: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+  
+  /* Text & Accents */
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-light: #94a3b8;
+  --input-bg: rgba(255, 255, 255, 0.5);
+
+  /* Dimensions & Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --blur: blur(14px);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Theme Glass Overrides */
+[data-theme="dark"] {
+  --bg-gradient-1: #0f172a;
+  --bg-gradient-2: #1e1b4b;
+  --bg-gradient-3: #0284c7;
+  --glass-bg: rgba(15, 23, 42, 0.55);
+  --glass-bg-hover: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-light: #64748b;
+  --input-bg: rgba(15, 23, 42, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   2. GLOBAL RESET & ANIMATED BACKGROUND
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(-45deg, var(--bg-gradient-1), var(--bg-gradient-2), var(--bg-gradient-3), var(--bg-gradient-1));
+  background-size: 400% 400%;
+  animation: gradientCanvas 18s ease infinite;
+}
+
+/* Ambient Background Blobs for Enhanced Glass Depth */
+body::before, body::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  z-index: -1;
+  pointer-events: none;
+}
+body::before {
+  width: 400px;
+  height: 400px;
+  background: rgba(var(--primary-rgb), 0.35);
+  top: 10%;
+  left: 15%;
+  animation: floatOrb 12s ease-in-out infinite alternate;
+}
+body::after {
+  width: 450px;
+  height: 450px;
+  background: rgba(var(--present-rgb), 0.25);
+  bottom: 10%;
+  right: 15%;
+  animation: floatOrb 15s ease-in-out infinite alternate-reverse;
+}
+
+/* --------------------------------------------------------------------------
+   3. GLASSMORPHIC UTILITY CLASSES
+   -------------------------------------------------------------------------- */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  transition: var(--transition);
+}
+
+.glass-panel:hover {
+  background: var(--glass-bg-hover);
+}
+
+/* --------------------------------------------------------------------------
+   4. LAYOUT STRUCTURE
+   -------------------------------------------------------------------------- */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.75rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   5. STATISTICS OVERVIEW DASHBOARD
+   -------------------------------------------------------------------------- */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.stat-card {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.stat-icon.present { background: rgba(var(--present-rgb), 0.2); color: var(--present); }
+.stat-icon.absent { background: rgba(var(--absent-rgb), 0.2); color: var(--absent); }
+.stat-icon.late { background: rgba(var(--late-rgb), 0.2); color: var(--late); }
+.stat-icon.total { background: rgba(var(--primary-rgb), 0.2); color: var(--primary); }
+
+.stat-details h4 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.stat-details .number {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* --------------------------------------------------------------------------
+   6. CONTROLS, SEARCH & FILTER BAR
+   -------------------------------------------------------------------------- */
+.controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.5rem;
+  background: var(--input-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  outline: none;
+  backdrop-filter: var(--blur);
+}
+
+.search-box::before {
+  content: "🔍";
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   7. ATTENDANCE GRID LAYOUT (ENGINEERED FOR 56 CARDS)
+   -------------------------------------------------------------------------- */
+.attendance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  perspective: 1000px;
+}
+
+/* Student Glass Card Component */
+.student-card {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: cardEntrance 0.5s ease backwards;
+}
+
+.student-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--text-light);
+  transition: var(--transition);
+}
+
+/* Status-driven accent bars & card glow */
+.student-card[data-status="present"]::before { background: var(--present); }
+.student-card[data-status="absent"]::before { background: var(--absent); }
+.student-card[data-status="late"]::before { background: var(--late); }
+
+.student-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid var(--glass-border);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.roll-number {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: var(--primary);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+}
+
+.student-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.student-id {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* Interactive Status Toggle Buttons */
+.status-btn-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.status-btn {
+  padding: 0.45rem 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--glass-border);
+  background: var(--input-bg);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.status-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* Active Button States */
+.status-btn.p-btn.active { background: var(--present); color: #fff; border-color: var(--present); box-shadow: 0 2px 8px rgba(var(--present-rgb), 0.4); }
+.status-btn.a-btn.active { background: var(--absent); color: #fff; border-color: var(--absent); box-shadow: 0 2px 8px rgba(var(--absent-rgb), 0.4); }
+.status-btn.l-btn.active { background: var(--late); color: #fff; border-color: var(--late); box-shadow: 0 2px 8px rgba(var(--late-rgb), 0.4); }
+
+/* --------------------------------------------------------------------------
+   8. TABLES & LIST VIEW (ALTERNATIVE TO GRID)
+   -------------------------------------------------------------------------- */
+.attendance-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.glass-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.glass-table th, .glass-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.glass-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   9. BUTTONS & UI FORM CONTROLS
+   -------------------------------------------------------------------------- */
+.btn {
+  padding: 0.65rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+  backdrop-filter: var(--blur);
+}
+
+.btn-primary { background: var(--primary); color: white; border: none; }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+.btn-glass { background: var(--glass-bg); color: var(--text-main); }
+.btn-glass:hover { background: var(--glass-bg-hover); }
+
+/* --------------------------------------------------------------------------
+   10. KEYFRAME ANIMATIONS
+   -------------------------------------------------------------------------- */
+@keyframes gradientCanvas {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 50px) scale(1.15); }
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Cascading stagger delay helper for up to 56 elements */
+.student-card:nth-child(n) { animation-delay: calc(n * 15ms); }
+
+/* --------------------------------------------------------------------------
+   11. RESPONSIVE BREAKPOINTS
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .attendance-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container { padding: 0.75rem; }
+  .top-bar, .controls-bar { flex-direction: column; align-items: stretch; }
+  .quick-actions { justify-content: space-between; }
+  .attendance-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+  .avatar { width: 50px; height: 50px; }
+  .student-card { padding: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  .attendance-grid { grid-template-columns: 1fr; }
+}

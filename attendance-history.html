@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance History</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:#eef3f8;
+padding:20px;
+}
+
+header{
+background:#0f172a;
+color:white;
+padding:20px;
+border-radius:12px;
+text-align:center;
+margin-bottom:20px;
+}
+
+.search-box{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.search-box input{
+flex:1;
+padding:12px;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:16px;
+}
+
+button{
+padding:12px 20px;
+border:none;
+background:#2563eb;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+th{
+background:#1e293b;
+color:white;
+padding:12px;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+tr:hover{
+background:#f5f5f5;
+}
+
+.empty{
+text-align:center;
+padding:40px;
+color:#777;
+font-size:18px;
+}
+
+.back{
+margin-top:20px;
+}
+
+@media(max-width:768px){
+
+table{
+font-size:12px;
+}
+
+th,td{
+padding:8px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>KESHAVA MEMORIAL COLLEGE OF ENGINEERING</h1>
+
+<h3>Attendance History</h3>
+
+</header>
+
+<div class="search-box">
+
+<input
+type="text"
+id="search"
+placeholder="Search Department..."
+onkeyup="loadHistory()">
+
+<button onclick="window.print()">
+Print
+</button>
+
+<button onclick="exportCSV()">
+Export CSV
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Date</th>
+<th>Time</th>
+<th>Department</th>
+<th>Teacher</th>
+<th>Present</th>
+<th>Absent</th>
+<th>Absent Roll Numbers</th>
+
+</tr>
+
+</thead>
+
+<tbody id="historyBody">
+
+</tbody>
+
+</table>
+
+<div class="back">
+
+<button onclick="window.location='admin-dashboard.html'">
+
+⬅ Back to Dashboard
+
+</button>
+
+</div>
+
+<script>
+
+function loadHistory(){
+
+let history =
+JSON.parse(localStorage.getItem("attendanceHistory")) || [];
+
+let body=document.getElementById("historyBody");
+
+body.innerHTML="";
+
+let search=document.getElementById("search").value.toLowerCase();
+
+if(history.length===0){
+
+body.innerHTML=
+"<tr><td colspan='7' class='empty'>No Attendance Records Found</td></tr>";
+
+return;
+
+}
+
+history.forEach(item=>{
+
+if(item.department.toLowerCase().includes(search)==false)
+return;
+
+body.innerHTML+=`
+
+<tr>
+
+<td>${item.date}</td>
+
+<td>${item.time}</td>
+
+<td>${item.department}</td>
+
+<td>${item.teacher}</td>
+
+<td>${item.presentCount}</td>
+
+<td>${item.absentCount}</td>
+
+<td>${item.absentStudents.join(", ")}</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+function exportCSV(){
+
+let history =
+JSON.parse(localStorage.getItem("attendanceHistory")) || [];
+
+if(history.length===0){
+
+alert("No attendance records.");
+
+return;
+
+}
+
+let csv =
+"Date,Time,Department,Teacher,Present,Absent,Absent Roll Numbers\n";
+
+history.forEach(item=>{
+
+csv +=
+`${item.date},${item.time},${item.department},${item.teacher},${item.presentCount},${item.absentCount},"${item.absentStudents.join(" ")}"\n`;
+
+});
+
+let blob=new Blob([csv],{type:"text/csv"});
+
+let link=document.createElement("a");
+
+link.href=URL.createObjectURL(blob);
+
+link.download="Attendance_History.csv";
+
+link.click();
+
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>

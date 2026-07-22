@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roll Call — Attendance Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:            #0F1424;
+  --bg-soft:       #141a30;
+  --surface:       #1B2340;
+  --surface-2:     #212B4D;
+  --border:        #2C3660;
+  --text:          #E9ECF7;
+  --text-dim:      #9AA3C7;
+  --text-faint:    #6670997d;
+
+  --mint:          #3ADD9A;
+  --mint-soft:     #1E3F38;
+  --mint-glow:     rgba(58,221,154,.35);
+
+  --coral:         #FF6B7A;
+  --coral-soft:    #402231;
+  --coral-glow:    rgba(255,107,122,.35);
+
+  --gold:          #FFC069;
+  --gold-soft:     #3A2E1C;
+
+  --unmarked:      #313c66;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  --shadow-2: 0 20px 60px -20px rgba(0,0,0,.6);
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*,*::before,*::after{ box-sizing: border-box; }
+html{ color-scheme: dark; }
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1a2242 0%, transparent 60%),
+    radial-gradient(1000px 500px at 110% 10%, #182036 0%, transparent 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height:100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible{
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.app{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 100px;
+  animation: appIn .5s ease both;
+}
+@keyframes appIn{
+  from{ opacity:0; transform: translateY(8px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+.topbar{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+  padding-bottom:22px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:22px;
+}
+.brand{ display:flex; align-items:center; gap:14px; }
+.brand-mark{
+  width:44px; height:44px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, var(--mint), #1FB07C);
+  color:#0B2A20;
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-display);
+  font-weight:700;
+  font-size:20px;
+  box-shadow: 0 6px 20px -4px var(--mint-glow);
+}
+.brand-text h1{
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  margin:0;
+  letter-spacing:-0.02em;
+}
+.brand-text p{
+  margin:2px 0 0;
+  font-size:13px;
+  color: var(--text-dim);
+}
+
+.topbar-controls{ display:flex; gap:14px; flex-wrap:wrap; }
+.field{ display:flex; flex-direction:column; gap:6px; }
+.field label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color: var(--text-dim);
+  font-weight:600;
+}
+.field select, .field input[type="date"]{
+  background: var(--surface);
+  border:1px solid var(--border);
+  color: var(--text);
+  padding:9px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size:14px;
+  font-weight:500;
+  min-width:130px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.field select:hover, .field input[type="date"]:hover{ border-color:#3c4877; }
+.field select:focus, .field input[type="date"]:focus{ border-color: var(--mint); }
+
+.stat-bar{
+  position:relative;
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:1px;
+  background: var(--border);
+  border:1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow:hidden;
+  margin-bottom:20px;
+  box-shadow: var(--shadow-1);
+}
+.stat{
+  background: var(--surface);
+  padding:18px 20px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.stat-value{
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight:700;
+  letter-spacing:-0.02em;
+  font-variant-numeric: tabular-nums;
+  transition: color .2s ease;
+}
+.stat-label{
+  font-size:12px;
+  color: var(--text-dim);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-weight:600;
+}
+.stat--present .stat-value{ color: var(--mint); }
+.stat--absent .stat-value{ color: var(--coral); }
+.stat--percent .stat-value{ color: var(--gold); }
+
+.progress-track{
+  grid-column: 1 / -1;
+  height:6px;
+  background: var(--bg-soft);
+  position:relative;
+}
+.progress-fill{
+  position:absolute; left:0; top:0; bottom:0;
+  width:0%;
+  background: linear-gradient(90deg, var(--mint), #24B87F);
+  transition: width .45s cubic-bezier(.4,0,.2,1);
+}
+
+.toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.manual-entry{ flex:1; min-width:280px; display:flex; flex-direction:column; gap:6px; }
+.manual-entry label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color: var(--text-dim);
+  font-weight:600;
+}
+.manual-entry-row{ display:flex; gap:8px; }
+.manual-entry-row input{
+  flex:1;
+  background: var(--surface);
+  border:1px solid var(--border);
+  color: var(--text);
+  padding:10px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size:13.5px;
+  transition: border-color .15s ease;
+}
+.manual-entry-row input:focus{ border-color: var(--coral); }
+.manual-entry-row input::placeholder{ color: var(--text-faint); }
+.hint{ margin:0; font-size:11.5px; color: var(--text-faint); }
+
+.bulk-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.btn{
+  font-family: var(--font-body);
+  font-weight:600;
+  font-size:13.5px;
+  border-radius: var(--radius-sm);
+  padding:10px 16px;
+  border:1px solid transparent;
+  cursor:pointer;
+  transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  white-space:nowrap;
+}
+.btn:active{ transform: scale(.97); }
+.btn--ghost{
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn--ghost:hover{ border-color: var(--coral); color: var(--coral); }
+.btn--subtle{
+  background: transparent;
+  color: var(--text-dim);
+  border-color: var(--border);
+}
+.btn--subtle:hover{ color: var(--text); border-color:#3c4877; background: var(--surface); }
+.btn--primary{
+  background: linear-gradient(145deg, var(--mint), #1FB07C);
+  color:#08251C;
+  font-size:14.5px;
+  padding:13px 26px;
+  box-shadow: 0 10px 30px -8px var(--mint-glow);
+}
+.btn--primary:hover{ box-shadow: 0 12px 34px -6px var(--mint-glow); }
+.btn--primary:disabled{
+  opacity:.55; cursor:not-allowed; box-shadow:none; transform:none;
+}
+
+.legend{
+  display:flex; gap:18px; margin-bottom:14px; flex-wrap:wrap;
+}
+.legend-item{
+  display:flex; align-items:center; gap:7px;
+  font-size:12.5px; color: var(--text-dim); font-weight:500;
+}
+.dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+.dot--present{ background: var(--mint); box-shadow:0 0 8px var(--mint-glow); }
+.dot--absent{ background: var(--coral); box-shadow:0 0 8px var(--coral-glow); }
+.dot--unmarked{ background: var(--unmarked); }
+
+.grid-wrap{
+  background: var(--bg-soft);
+  border:1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding:20px;
+  margin-bottom:24px;
+}
+.grid{
+  display:grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap:10px;
+}
+@media (max-width: 980px){ .grid{ grid-template-columns: repeat(6, 1fr); } }
+@media (max-width: 720px){ .grid{ grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 460px){ .grid{ grid-template-columns: repeat(3, 1fr); } }
+
+.chip{
+  position:relative;
+  background: var(--surface);
+  border:1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding:12px 6px 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  user-select:none;
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1), border-color .15s ease, background .2s ease, box-shadow .2s ease;
+  animation: chipIn .4s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: calc(var(--i) * 8ms);
+}
+@keyframes chipIn{
+  from{ opacity:0; transform: translateY(10px) scale(.94); }
+  to{ opacity:1; transform: translateY(0) scale(1); }
+}
+.chip:hover{ transform: translateY(-3px); border-color:#414d80; }
+.chip:active{ transform: translateY(-1px) scale(.97); }
+
+.chip-roll{
+  font-family: var(--font-mono);
+  font-size:15px;
+  font-weight:600;
+  color: var(--text);
+}
+.chip-status{
+  font-size:9.5px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-weight:700;
+  color: var(--text-faint);
+}
+.chip-mark{
+  position:absolute;
+  top:-6px; right:-6px;
+  width:18px; height:18px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px;
+  font-weight:800;
+  opacity:0;
+  transform: scale(.5);
+  transition: opacity .18s ease, transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+
+.chip.is-present{
+  background: var(--mint-soft);
+  border-color: var(--mint);
+  box-shadow: 0 4px 18px -6px var(--mint-glow);
+}
+.chip.is-present .chip-status{ color: var(--mint); }
+.chip.is-present .chip-mark{
+  opacity:1; transform:scale(1);
+  background: var(--mint); color:#08251C;
+}
+
+.chip.is-absent{
+  background: var(--coral-soft);
+  border-color: var(--coral);
+  box-shadow: 0 4px 18px -6px var(--coral-glow);
+  animation: chipIn .4s cubic-bezier(.2,.8,.2,1) both, shake .32s ease;
+}
+.chip.is-absent .chip-status{ color: var(--coral); }
+.chip.is-absent .chip-mark{
+  opacity:1; transform:scale(1);
+  background: var(--coral); color:#3C0A10;
+}
+@keyframes shake{
+  0%,100%{ transform: translateX(0); }
+  25%{ transform: translateX(-3px); }
+  75%{ transform: translateX(3px); }
+}
+
+.chip.is-manual::after{
+  content:'';
+  position:absolute;
+  bottom:6px; left:50%;
+  transform:translateX(-50%);
+  width:4px; height:4px;
+  border-radius:50%;
+  background: var(--gold);
+}
+
+.footer{
+  position:sticky;
+  bottom:18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  background: rgba(27,35,64,.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border:1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding:14px 20px;
+  box-shadow: var(--shadow-2);
+  flex-wrap:wrap;
+}
+.save-status{
+  display:flex; align-items:center; gap:8px;
+  font-size:12.5px; color: var(--text-dim); font-weight:500;
+}
+.save-dot{
+  width:7px; height:7px; border-radius:50%;
+  background: var(--mint);
+  box-shadow:0 0 0 0 var(--mint-glow);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%{ box-shadow:0 0 0 0 var(--mint-glow); }
+  70%{ box-shadow:0 0 0 7px transparent; }
+  100%{ box-shadow:0 0 0 0 transparent; }
+}
+.save-status.is-saving .save-dot{ background: var(--gold); }
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:28px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface-2);
+  border:1px solid var(--mint);
+  color: var(--text);
+  padding:13px 22px;
+  border-radius: var(--radius-md);
+  font-size:14px;
+  font-weight:600;
+  box-shadow: 0 20px 50px -12px rgba(0,0,0,.6);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .25s ease, transform .25s cubic-bezier(.2,.8,.2,1);
+  z-index:100;
+}
+.toast.show{
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">✓</span>
+      <div class="brand-text">
+        <h1>Roll Call</h1>
+        <p>Daily attendance register</p>
+      </div>
+    </div>
+
+    <div class="topbar-controls">
+      <div class="field">
+        <label for="yearSelect">Year</label>
+        <select id="yearSelect">
+          <option value="1">1st Year</option>
+          <option value="2">2nd Year</option>
+          <option value="3">3rd Year</option>
+          <option value="4">4th Year</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="sectionSelect">Section</label>
+        <select id="sectionSelect">
+          <option value="A">Section A</option>
+          <option value="B">Section B</option>
+          <option value="C">Section C</option>
+          <option value="D">Section D</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="dateInput">Date</label>
+        <input type="date" id="dateInput">
+      </div>
+    </div>
+  </header>
+
+  <section class="stat-bar" id="statBar">
+    <div class="stat stat--total">
+      <span class="stat-value" id="statTotal">56</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat stat--present">
+      <span class="stat-value" id="statPresent">0</span>
+      <span class="stat-label">Present</span>
+    </div>
+    <div class="stat stat--absent">
+      <span class="stat-value" id="statAbsent">0</span>
+      <span class="stat-label">Absent</span>
+    </div>
+    <div class="stat stat--percent">
+      <span class="stat-value" id="statPercent">0%</span>
+      <span class="stat-label">Attendance</span>
+    </div>
+    <div class="progress-track" aria-hidden="true">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </section>
+
+  <section class="toolbar">
+    <div class="manual-entry">
+      <label for="manualInput">Mark absent by roll no.</label>
+      <div class="manual-entry-row">
+        <input type="text" id="manualInput" placeholder="e.g. 3, 14, 27-30, 45">
+        <button class="btn btn--ghost" id="applyManualBtn">Apply</button>
+      </div>
+      <p class="hint">Comma-separated numbers or ranges. Applying replaces manual marks; chip clicks still work.</p>
+    </div>
+
+    <div class="bulk-actions">
+      <button class="btn btn--subtle" id="allPresentBtn">Mark all present</button>
+      <button class="btn btn--subtle" id="allAbsentBtn">Mark all absent</button>
+      <button class="btn btn--subtle" id="resetBtn">Reset</button>
+    </div>
+  </section>
+
+  <div class="legend">
+    <span class="legend-item"><i class="dot dot--present"></i>Present</span>
+    <span class="legend-item"><i class="dot dot--absent"></i>Absent</span>
+    <span class="legend-item"><i class="dot dot--unmarked"></i>Unmarked</span>
+  </div>
+
+  <section class="grid-wrap">
+    <div class="grid" id="studentGrid"></div>
+  </section>
+
+  <footer class="footer">
+    <div class="save-status" id="saveStatus">
+      <span class="save-dot"></span>
+      <span id="saveStatusText">All changes saved locally</span>
+    </div>
+    <button class="btn btn--primary" id="submitBtn">
+      <span>Submit attendance</span>
+    </button>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  var TOTAL_STUDENTS = 56;
+  var STORAGE_PREFIX = 'rollcall:';
+
+  var state = {};
+  var manualFlags = {};
+  var saveTimer = null;
+
+  var els = {
+    yearSelect: document.getElementById('yearSelect'),
+    sectionSelect: document.getElementById('sectionSelect'),
+    dateInput: document.getElementById('dateInput'),
+    grid: document.getElementById('studentGrid'),
+    statTotal: document.getElementById('statTotal'),
+    statPresent: document.getElementById('statPresent'),
+    statAbsent: document.getElementById('statAbsent'),
+    statPercent: document.getElementById('statPercent'),
+    progressFill: document.getElementById('progressFill'),
+    manualInput: document.getElementById('manualInput'),
+    applyManualBtn: document.getElementById('applyManualBtn'),
+    allPresentBtn: document.getElementById('allPresentBtn'),
+    allAbsentBtn: document.getElementById('allAbsentBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    submitBtn: document.getElementById('submitBtn'),
+    saveStatus: document.getElementById('saveStatus'),
+    saveStatusText: document.getElementById('saveStatusText'),
+    toast: document.getElementById('toast')
+  };
+
+  function todayISO(){
+    var d = new Date();
+    var mm = String(d.getMonth()+1).padStart(2,'0');
+    var dd = String(d.getDate()).padStart(2,'0');
+    return d.getFullYear() + '-' + mm + '-' + dd;
+  }
+
+  function storageKey(){
+    var y = els.yearSelect.value;
+    var s = els.sectionSelect.value;
+    var d = els.dateInput.value || todayISO();
+    return STORAGE_PREFIX + 'Y' + y + '-' + s + '-' + d;
+  }
+
+  function safeParse(json, fallback){
+    try{ return JSON.parse(json); }catch(e){ return fallback; }
+  }
+
+  function showToast(msg, ms){
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(function(){
+      els.toast.classList.remove('show');
+    }, ms || 2400);
+  }
+
+  function parseRollList(str){
+    var rolls = [];
+    if(!str) return rolls;
+    var parts = str.split(',');
+    for(var i=0;i<parts.length;i++){
+      var p = parts[i].trim();
+      if(!p) continue;
+      if(p.indexOf('-') !== -1){
+        var range = p.split('-');
+        var a = parseInt(range[0],10);
+        var b = parseInt(range[1],10);
+        if(!isNaN(a) && !isNaN(b)){
+          var lo = Math.min(a,b), hi = Math.max(a,b);
+          for(var n=lo; n<=hi; n++){ rolls.push(n); }
+        }
+      } else {
+        var v = parseInt(p,10);
+        if(!isNaN(v)) rolls.push(v);
+      }
+    }
+    return rolls.filter(function(n){ return n>=1 && n<=TOTAL_STUDENTS; });
+  }
+
+  function buildGrid(){
+    var frag = document.createDocumentFragment();
+    for(var i=1;i<=TOTAL_STUDENTS;i++){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.style.setProperty('--i', i);
+      chip.dataset.roll = i;
+      chip.setAttribute('aria-pressed','false');
+      chip.setAttribute('aria-label', 'Roll number ' + i + ', unmarked. Tap to mark present, tap again to mark absent.');
+
+      var mark = document.createElement('span');
+      mark.className = 'chip-mark';
+      mark.textContent = '';
+
+      var roll = document.createElement('span');
+      roll.className = 'chip-roll';
+      roll.textContent = String(i).padStart(2,'0');
+
+      var status = document.createElement('span');
+      status.className = 'chip-status';
+      status.textContent = '—';
+
+      chip.appendChild(mark);
+      chip.appendChild(roll);
+      chip.appendChild(status);
+      chip.addEventListener('click', onChipClick);
+      frag.appendChild(chip);
+    }
+    els.grid.innerHTML = '';
+    els.grid.appendChild(frag);
+  }
+
+  function renderChip(roll){
+    var chip = els.grid.querySelector('.chip[data-roll="'+roll+'"]');
+    if(!chip) return;
+    var status = state[roll];
+    var statusEl = chip.querySelector('.chip-status');
+    var markEl = chip.querySelector('.chip-mark');
+
+    chip.classList.remove('is-present','is-absent','is-manual');
+
+    if(status === 'present'){
+      chip.classList.add('is-present');
+      statusEl.textContent = 'Present';
+      markEl.textContent = '✓';
+      chip.setAttribute('aria-pressed','true');
+      chip.setAttribute('aria-label','Roll number '+roll+', present. Tap to mark absent.');
+    } else if(status === 'absent'){
+      chip.classList.add('is-absent');
+      statusEl.textContent = 'Absent';
+      markEl.textContent = '✕';
+      chip.setAttribute('aria-pressed','true');
+      chip.setAttribute('aria-label','Roll number '+roll+', absent. Tap to clear.');
+    } else {
+      statusEl.textContent = '—';
+      markEl.textContent = '';
+      chip.setAttribute('aria-pressed','false');
+      chip.setAttribute('aria-label','Roll number '+roll+', unmarked. Tap to mark present.');
+    }
+
+    if(manualFlags[roll]) chip.classList.add('is-manual');
+  }
+
+  function renderAll(){
+    for(var i=1;i<=TOTAL_STUDENTS;i++){ renderChip(i); }
+    updateCounters();
+  }
+
+  function updateCounters(){
+    var present = 0, absent = 0;
+    for(var i=1;i<=TOTAL_STUDENTS;i++){
+      if(state[i] === 'present') present++;
+      else if(state[i] === 'absent') absent++;
+    }
+    var marked = present + absent;
+    var pct = marked ? Math.round((present / TOTAL_STUDENTS) * 100) : 0;
+
+    els.statTotal.textContent = TOTAL_STUDENTS;
+    els.statPresent.textContent = present;
+    els.statAbsent.textContent = absent;
+    els.statPercent.textContent = pct + '%';
+    els.progressFill.style.width = pct + '%';
+  }
+
+  function onChipClick(e){
+    var roll = e.currentTarget.dataset.roll;
+    cycleStatus(roll);
+  }
+
+  function cycleStatus(roll){
+    var current = state[roll];
+    if(current === 'present'){
+      state[roll] = 'absent';
+    } else if(current === 'absent'){
+      delete state[roll];
+    } else {
+      state[roll] = 'present';
+    }
+    delete manualFlags[roll];
+    renderChip(roll);
+    updateCounters();
+    scheduleSave();
+  }
+
+  function applyManualAbsentees(){
+    var rolls = parseRollList(els.manualInput.value);
+    if(!rolls.length){
+      showToast('Enter roll numbers like 3, 14, 27-30');
+      return;
+    }
+    Object.keys(manualFlags).forEach(function(r){
+      if(rolls.indexOf(parseInt(r,10)) === -1){
+        delete manualFlags[r];
+      }
+    });
+    rolls.forEach(function(r){
+      state[r] = 'absent';
+      manualFlags[r] = true;
+      renderChip(r);
+    });
+    updateCounters();
+    scheduleSave();
+    showToast(rolls.length + ' student' + (rolls.length>1?'s':'') + ' marked absent');
+  }
+
+  function markAll(status){
+    for(var i=1;i<=TOTAL_STUDENTS;i++){
+      state[i] = status;
+      delete manualFlags[i];
+      renderChip(i);
+    }
+    updateCounters();
+    scheduleSave();
+  }
+
+  function resetAll(){
+    state = {};
+    manualFlags = {};
+    renderAll();
+    scheduleSave();
+    showToast('Register cleared');
+  }
+
+  function scheduleSave(){
+    els.saveStatus.classList.add('is-saving');
+    els.saveStatusText.textContent = 'Saving…';
+    window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(function(){
+      persist();
+      els.saveStatus.classList.remove('is-saving');
+      els.saveStatusText.textContent = 'All changes saved locally';
+    }, 350);
+  }
+
+  function persist(){
+    var payload = {
+      year: els.yearSelect.value,
+      section: els.sectionSelect.value,
+      date: els.dateInput.value || todayISO(),
+      state: state,
+      manual: manualFlags,
+      submitted: false,
+      updatedAt: new Date().toISOString()
+    };
+    try{
+      window.localStorage.setItem(storageKey(), JSON.stringify(payload));
+    }catch(e){}
+  }
+
+  function loadForCurrentContext(){
+    var raw = null;
+    try{ raw = window.localStorage.getItem(storageKey()); }catch(e){}
+    var data = raw ? safeParse(raw, null) : null;
+    state = (data && data.state) ? data.state : {};
+    manualFlags = (data && data.manual) ? data.manual : {};
+    renderAll();
+    els.submitBtn.disabled = false;
+    els.submitBtn.querySelector('span').textContent = (data && data.submitted)
+      ? 'Re-submit attendance'
+      : 'Submit attendance';
+  }
+
+  function submitAttendance(){
+    var present = 0, absent = 0;
+    for(var i=1;i<=TOTAL_STUDENTS;i++){
+      if(state[i] === 'present') present++;
+      else if(state[i] === 'absent') absent++;
+    }
+    var unmarked = TOTAL_STUDENTS - present - absent;
+
+    if(unmarked > 0){
+      var proceed = window.confirm(
+        unmarked + ' student' + (unmarked>1?'s are':' is') +
+        ' still unmarked. Submit anyway? Unmarked students will be treated as absent.'
+      );
+      if(!proceed) return;
+      for(var r=1;r<=TOTAL_STUDENTS;r++){
+        if(!state[r]) state[r] = 'absent';
+      }
+      renderAll();
+    }
+
+    var payload = {
+      year: els.yearSelect.value,
+      section: els.sectionSelect.value,
+      date: els.dateInput.value || todayISO(),
+      state: state,
+      manual: manualFlags,
+      submitted: true,
+      submittedAt: new Date().toISOString()
+    };
+    try{
+      window.localStorage.setItem(storageKey(), JSON.stringify(payload));
+    }catch(e){}
+
+    els.submitBtn.querySelector('span').textContent = 'Re-submit attendance';
+    showToast('Attendance submitted — ' + present + ' present, ' + (TOTAL_STUDENTS-present) + ' absent', 3200);
+  }
+
+  function init(){
+    els.dateInput.value = todayISO();
+    buildGrid();
+    loadForCurrentContext();
+
+    els.yearSelect.addEventListener('change', loadForCurrentContext);
+    els.sectionSelect.addEventListener('change', loadForCurrentContext);
+    els.dateInput.addEventListener('change', loadForCurrentContext);
+
+    els.applyManualBtn.addEventListener('click', applyManualAbsentees);
+    els.manualInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); applyManualAbsentees(); }
+    });
+
+    els.allPresentBtn.addEventListener('click', function(){ markAll('present'); });
+    els.allAbsentBtn.addEventListener('click', function(){ markAll('absent'); });
+    els.resetBtn.addEventListener('click', function(){
+      if(window.confirm('Clear all marks for this class and date?')) resetAll();
+    });
+
+    els.submitBtn.addEventListener('click', submitAttendance);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KMCE Admin Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:#eef2f7;
+}
+
+header{
+background:#0f172a;
+color:white;
+padding:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+}
+
+header img{
+width:70px;
+height:70px;
+border-radius:50%;
+background:white;
+padding:5px;
+}
+
+header h2{
+text-align:center;
+flex:1;
+}
+
+.container{
+padding:20px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,.15);
+text-align:center;
+}
+
+.card h3{
+color:#555;
+}
+
+.card h1{
+margin-top:10px;
+color:#2563eb;
+}
+
+.toolbar{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.toolbar input{
+flex:1;
+padding:12px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button{
+padding:12px 20px;
+border:none;
+background:#2563eb;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+th{
+background:#1e293b;
+color:white;
+padding:12px;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+tr:hover{
+background:#f2f2f2;
+}
+
+.delete{
+background:#dc2626;
+}
+
+.delete:hover{
+background:#b91c1c;
+}
+
+.logout{
+margin-top:20px;
+background:#111827;
+}
+
+@media(max-width:700px){
+
+table{
+font-size:12px;
+}
+
+header{
+text-align:center;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<img id="logo" src="logo.png">
+
+<h2>
+KESHAVA MEMORIAL COLLEGE OF ENGINEERING
+<br>
+Attendance Dashboard
+</h2>
+
+</header>
+
+<div class="container">
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Records</h3>
+<h1 id="records">0</h1>
+</div>
+
+<div class="card">
+<h3>Total Present</h3>
+<h1 id="present">0</h1>
+</div>
+
+<div class="card">
+<h3>Total Absent</h3>
+<h1 id="absent">0</h1>
+</div>
+
+</div>
+
+<div class="toolbar">
+
+<input
+type="text"
+id="search"
+placeholder="Search Department..."
+onkeyup="loadTable()">
+
+<input
+type="file"
+accept="image/*"
+onchange="changeLogo(event)">
+
+<button onclick="clearAll()">
+Clear All Records
+</button>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Date</th>
+<th>Time</th>
+<th>Department</th>
+<th>Teacher</th>
+<th>Present</th>
+<th>Absent</th>
+<th>Absent Roll Numbers</th>
+<th>Delete</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tbody">
+
+</tbody>
+
+</table>
+
+<button class="logout"
+onclick="window.location='admin-login.html'">
+
+Logout
+
+</button>
+
+</div>
+
+<script>
+
+let history =
+JSON.parse(localStorage.getItem("attendanceHistory")) || [];
+
+let savedLogo = localStorage.getItem("collegeLogo");
+
+if(savedLogo){
+
+document.getElementById("logo").src=savedLogo;
+
+}
+
+function loadTable(){
+
+let tbody=document.getElementById("tbody");
+
+tbody.innerHTML="";
+
+let search=document.getElementById("search").value.toLowerCase();
+
+let totalPresent=0;
+
+let totalAbsent=0;
+
+history.forEach((item,index)=>{
+
+if(item.department.toLowerCase().includes(search)==false)
+return;
+
+totalPresent+=item.presentCount;
+
+totalAbsent+=item.absentCount;
+
+tbody.innerHTML+=`
+
+<tr>
+
+<td>${item.date}</td>
+
+<td>${item.time}</td>
+
+<td>${item.department}</td>
+
+<td>${item.teacher}</td>
+
+<td>${item.presentCount}</td>
+
+<td>${item.absentCount}</td>
+
+<td>${item.absentStudents.join(", ")}</td>
+
+<td>
+
+<button class="delete"
+onclick="deleteRecord(${index})">
+
+Delete
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById("records").innerHTML=history.length;
+
+document.getElementById("present").innerHTML=totalPresent;
+
+document.getElementById("absent").innerHTML=totalAbsent;
+
+}
+
+function deleteRecord(index){
+
+if(confirm("Delete this attendance record?")){
+
+history.splice(index,1);
+
+localStorage.setItem(
+"attendanceHistory",
+JSON.stringify(history)
+);
+
+loadTable();
+
+}
+
+}
+
+function clearAll(){
+
+if(confirm("Delete ALL attendance records?")){
+
+history=[];
+
+localStorage.removeItem("attendanceHistory");
+
+loadTable();
+
+}
+
+}
+
+function changeLogo(event){
+
+let file=event.target.files[0];
+
+if(!file) return;
+
+let reader=new FileReader();
+
+reader.onload=function(){
+
+document.getElementById("logo").src=reader.result;
+
+localStorage.setItem("collegeLogo",reader.result);
+
+}
+
+reader.readAsDataURL(file);
+
+}
+
+loadTable();
+
+</script>
+
+</body>
+</html>

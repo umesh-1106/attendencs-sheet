@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Directory & Management System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: #f8fafc; color: #1e293b; padding: 24px; min-height: 100vh; }
+    
+    .container { max-width: 1100px; margin: 0 auto; background: #ffffff; padding: 28px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+    
+    /* Header */
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .header-title h1 { font-size: 24px; color: #0f172a; font-weight: 700; }
+    .header-title p { font-size: 14px; color: #64748b; margin-top: 4px; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Filters Bar */
+    .filter-card { background: #f1f5f9; padding: 16px; border-radius: 12px; margin-bottom: 20px; display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 768px) {
+      .filter-card { grid-template-columns: 1fr; }
+    }
+    .input-field, .select-field { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background: #fff; transition: all 0.2s; }
+    .input-field:focus, .select-field:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+    /* Buttons */
+    .btn { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-primary { background: #4f46e5; color: #ffffff; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-export { background: #0284c7; color: #ffffff; }
+    .btn-export:hover { background: #0369a1; }
+    .btn-save { background: #10b981; color: #ffffff; }
+    .btn-save:hover { background: #059669; }
+    .btn-edit { background: #f59e0b; color: #ffffff; padding: 6px 12px; font-size: 13px; }
+    .btn-edit:hover { background: #d97706; }
+    .btn-delete { background: #ef4444; color: #ffffff; padding: 6px 12px; font-size: 13px; }
+    .btn-delete:hover { background: #dc2626; }
+    .btn-secondary { background: #94a3b8; color: #ffffff; }
+    .btn-secondary:hover { background: #64748b; }
+
+    /* Badges */
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
+    .badge-dept { background: #e0e7ff; color: #3730a3; }
+    .badge-year { background: #fef3c7; color: #92400e; }
+    .badge-section { background: #e0f2fe; color: #075985; }
+
+    /* Table */
+    .stats-bar { font-size: 13px; color: #64748b; margin-bottom: 12px; display: flex; justify-content: space-between; font-weight: 500; }
+    .table-responsive { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    th { background: #f8fafc; font-weight: 600; color: #475569; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background: #f8fafc; }
+    .actions-cell { display: flex; gap: 6px; }
+    .roll-no { font-family: monospace; font-weight: 700; color: #0f172a; }
+    .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
+
+    /* Modal Form */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #ffffff; padding: 28px; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+    .modal h2 { margin-bottom: 20px; font-size: 20px; color: #0f172a; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group.full-width { grid-column: span 2; }
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full-width { grid-column: span 1; }
+    }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+    /* Toast Notification */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; display: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 2000; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-title">
+        <h1>👨‍🎓 Student Directory</h1>
+        <p>Manage student records, enrollment details, and sections</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-export" onclick="exportToCSV()">📄 Export CSV</button>
+        <button class="btn btn-save" onclick="manualSave()">💾 Save Changes</button>
+        <button class="btn btn-primary" onclick="openModal()">➕ Add Student</button>
+      </div>
+    </header>
+
+    <!-- Search & Filter Bar -->
+    <div class="filter-card">
+      <input type="text" id="searchInput" class="input-field" placeholder="🔍 Search by name or roll number..." oninput="renderStudents()">
+      
+      <select id="deptFilter" class="select-field" onchange="renderStudents()">
+        <option value="">🏫 All Departments</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Mechanical">Mechanical</option>
+        <option value="Civil Engineering">Civil Engineering</option>
+        <option value="Business Admin">Business Admin</option>
+      </select>
+
+      <select id="yearFilter" class="select-field" onchange="renderStudents()">
+        <option value="">📚 All Years</option>
+        <option value="1st Year">1st Year</option>
+        <option value="2nd Year">2nd Year</option>
+        <option value="3rd Year">3rd Year</option>
+        <option value="4th Year">4th Year</option>
+      </select>
+
+      <select id="sectionFilter" class="select-field" onchange="renderStudents()">
+        <option value="">🅰️ All Sections</option>
+        <option value="Section A">Section A</option>
+        <option value="Section B">Section B</option>
+        <option value="Section C">Section C</option>
+      </select>
+    </div>
+
+    <!-- Stats Count -->
+    <div class="stats-bar">
+      <span id="showingCount">Showing 0 of 0 students</span>
+      <span>Auto-saves to LocalStorage</span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Full Name</th>
+            <th>Department</th>
+            <th>Year</th>
+            <th>Section</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add / Edit Modal -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal">
+      <h2 id="modalTitle">➕ Add New Student</h2>
+      <form id="studentForm" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" id="studentId">
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="studentRoll">Roll Number</label>
+            <input type="text" id="studentRoll" class="input-field" required placeholder="e.g. CS2026-001">
+          </div>
+
+          <div class="form-group">
+            <label for="studentName">Full Name</label>
+            <input type="text" id="studentName" class="input-field" required placeholder="e.g. Alex Johnson">
+          </div>
+
+          <div class="form-group">
+            <label for="studentDept">Department</label>
+            <select id="studentDept" class="select-field" required>
+              <option value="">Select Department</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Mechanical">Mechanical</option>
+              <option value="Civil Engineering">Civil Engineering</option>
+              <option value="Business Admin">Business Admin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="studentYear">Year</label>
+            <select id="studentYear" class="select-field" required>
+              <option value="">Select Year</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="studentSection">Section</label>
+            <select id="studentSection" class="select-field" required>
+              <option value="">Select Section</option>
+              <option value="Section A">Section A</option>
+              <option value="Section B">Section B</option>
+              <option value="Section C">Section C</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="studentPhone">Phone Number</label>
+            <input type="tel" id="studentPhone" class="input-field" required placeholder="e.g. (555) 019-2831">
+          </div>
+
+          <div class="form-group full-width">
+            <label for="studentEmail">Email Address</label>
+            <input type="email" id="studentEmail" class="input-field" required placeholder="e.g. alex.j@university.edu">
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toastNotification">Changes saved successfully!</div>
+
+  <script>
+    // Initial sample data if local storage is empty
+    const defaultStudents = [
+      { id: '1', rollNo: 'CS2026-001', name: 'Liam Davies', dept: 'Computer Science', year: '3rd Year', section: 'Section A', email: 'liam.d@university.edu', phone: '555-0101' },
+      { id: '2', rollNo: 'EC2026-042', name: 'Sophia Chen', dept: 'Electronics', year: '2nd Year', section: 'Section B', email: 'sophia.c@university.edu', phone: '555-0142' },
+      { id: '3', rollNo: 'ME2026-015', name: 'Marcus Vance', dept: 'Mechanical', year: '4th Year', section: 'Section A', email: 'm.vance@university.edu', phone: '555-0188' }
+    ];
+
+    // Load state from localStorage
+    let students = JSON.parse(localStorage.getItem('students_directory_data')) || defaultStudents;
+
+    // Save state to localStorage
+    function saveStudents() {
+      localStorage.setItem('students_directory_data', JSON.stringify(students));
+    }
+
+    // Render list to table with multi-filter support
+    function renderStudents() {
+      const tbody = document.getElementById('studentTableBody');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+      const deptFilter = document.getElementById('deptFilter').value;
+      const yearFilter = document.getElementById('yearFilter').value;
+      const sectionFilter = document.getElementById('sectionFilter').value;
+
+      tbody.innerHTML = '';
+
+      const filtered = students.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(searchQuery) || s.rollNo.toLowerCase().includes(searchQuery);
+        const matchesDept = !deptFilter || s.dept === deptFilter;
+        const matchesYear = !yearFilter || s.year === yearFilter;
+        const matchesSection = !sectionFilter || s.section === sectionFilter;
+        return matchesSearch && matchesDept && matchesYear && matchesSection;
+      });
+
+      document.getElementById('showingCount').textContent = `Showing ${filtered.length} of ${students.length} students`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No matching student records found.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(s => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="roll-no">${escapeHtml(s.rollNo)}</td>
+          <td><strong>${escapeHtml(s.name)}</strong></td>
+          <td><span class="badge badge-dept">${escapeHtml(s.dept)}</span></td>
+          <td><span class="badge badge-year">${escapeHtml(s.year)}</span></td>
+          <td><span class="badge badge-section">${escapeHtml(s.section)}</span></td>
+          <td>${escapeHtml(s.email)}</td>
+          <td class="actions-cell">
+            <button class="btn btn-edit" onclick="editStudent('${s.id}')">✏ Edit</button>
+            <button class="btn btn-delete" onclick="deleteStudent('${s.id}')">🗑 Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Add / Update Student handler
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const id = document.getElementById('studentId').value;
+      const rollNo = document.getElementById('studentRoll').value.trim();
+      const name = document.getElementById('studentName').value.trim();
+      const dept = document.getElementById('studentDept').value;
+      const year = document.getElementById('studentYear').value;
+      const section = document.getElementById('studentSection').value;
+      const email = document.getElementById('studentEmail').value.trim();
+      const phone = document.getElementById('studentPhone').value.trim();
+
+      if (id) {
+        // Edit existing
+        const index = students.findIndex(s => s.id === id);
+        if (index !== -1) {
+          students[index] = { id, rollNo, name, dept, year, section, email, phone };
+        }
+      } else {
+        // Add new
+        const newStudent = { id: Date.now().toString(), rollNo, name, dept, year, section, email, phone };
+        students.push(newStudent);
+      }
+
+      saveStudents();
+      renderStudents();
+      closeModal();
+      showToast(id ? 'Student record updated!' : 'New student added!');
+    }
+
+    // Populate modal for editing
+    function editStudent(id) {
+      const student = students.find(s => s.id === id);
+      if (!student) return;
+
+      document.getElementById('studentId').value = student.id;
+      document.getElementById('studentRoll').value = student.rollNo;
+      document.getElementById('studentName').value = student.name;
+      document.getElementById('studentDept').value = student.dept;
+      document.getElementById('studentYear').value = student.year;
+      document.getElementById('studentSection').value = student.section;
+      document.getElementById('studentEmail').value = student.email;
+      document.getElementById('studentPhone').value = student.phone;
+      document.getElementById('modalTitle').textContent = '✏ Edit Student Details';
+
+      openModal(true);
+    }
+
+    // Delete student
+    function deleteStudent(id) {
+      if (confirm('Are you sure you want to delete this student record?')) {
+        students = students.filter(s => s.id !== id);
+        saveStudents();
+        renderStudents();
+        showToast('Student record removed.');
+      }
+    }
+
+    // Export to CSV
+    function exportToCSV() {
+      if (students.length === 0) {
+        showToast('No student records to export!');
+        return;
+      }
+      
+      const headers = ['Roll No', 'Full Name', 'Department', 'Year', 'Section', 'Email', 'Phone'];
+      const rows = students.map(s => [
+        `"${s.rollNo.replace(/"/g, '""')}"`,
+        `"${s.name.replace(/"/g, '""')}"`,
+        `"${s.dept.replace(/"/g, '""')}"`,
+        `"${s.year.replace(/"/g, '""')}"`,
+        `"${s.section.replace(/"/g, '""')}"`,
+        `"${s.email.replace(/"/g, '""')}"`,
+        `"${s.phone.replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `student_directory_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast('📄 Directory exported to CSV!');
+    }
+
+    // Manual Save Feedback
+    function manualSave() {
+      saveStudents();
+      showToast('💾 Saved all changes to local storage!');
+    }
+
+    // Modal toggles
+    function openModal(isEdit = false) {
+      if (!isEdit) {
+        document.getElementById('studentForm').reset();
+        document.getElementById('studentId').value = '';
+        document.getElementById('modalTitle').textContent = '➕ Add New Student';
+      }
+      document.getElementById('studentModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('studentModal').classList.remove('active');
+    }
+
+    // Helpers
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = message;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    }
+
+    function escapeHtml(str) {
+      return str ? str.replace(/[&<>"']/g, match => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[match])) : '';
+    }
+
+    // Initial load
+    renderStudents();
+  </script>
+</body>
+</html>

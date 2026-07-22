@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Host / Admin Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+
+height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+background:linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#1d2671);
+
+background-size:400% 400%;
+
+animation:bg 12s ease infinite;
+
+overflow:hidden;
+
+}
+
+@keyframes bg{
+
+0%{background-position:0% 50%;}
+
+50%{background-position:100% 50%;}
+
+100%{background-position:0% 50%;}
+
+}
+
+.circle{
+
+position:absolute;
+
+border-radius:50%;
+
+background:rgba(255,255,255,.08);
+
+animation:float 12s linear infinite;
+
+}
+
+.circle:nth-child(1){
+
+width:220px;
+
+height:220px;
+
+top:-80px;
+
+left:-60px;
+
+}
+
+.circle:nth-child(2){
+
+width:170px;
+
+height:170px;
+
+bottom:-60px;
+
+right:-40px;
+
+animation-duration:18s;
+
+}
+
+@keyframes float{
+
+0%{
+
+transform:translateY(0px) rotate(0deg);
+
+}
+
+50%{
+
+transform:translateY(40px) rotate(180deg);
+
+}
+
+100%{
+
+transform:translateY(0px) rotate(360deg);
+
+}
+
+}
+
+.login{
+
+width:430px;
+
+max-width:92%;
+
+background:rgba(255,255,255,.12);
+
+backdrop-filter:blur(18px);
+
+border-radius:25px;
+
+padding:35px;
+
+box-shadow:0 20px 40px rgba(0,0,0,.4);
+
+color:white;
+
+text-align:center;
+
+z-index:10;
+
+}
+
+.logo{
+
+width:100px;
+
+height:100px;
+
+background:white;
+
+padding:8px;
+
+border-radius:50%;
+
+margin-bottom:15px;
+
+}
+
+h1{
+
+margin-bottom:8px;
+
+font-size:28px;
+
+}
+
+p{
+
+color:#ddd;
+
+margin-bottom:25px;
+
+}
+
+.input{
+
+text-align:left;
+
+margin-bottom:18px;
+
+}
+
+.input label{
+
+display:block;
+
+margin-bottom:6px;
+
+}
+
+.input input{
+
+width:100%;
+
+padding:13px;
+
+border:none;
+
+outline:none;
+
+border-radius:12px;
+
+font-size:15px;
+
+}
+
+.options{
+
+display:flex;
+
+justify-content:space-between;
+
+font-size:14px;
+
+margin-bottom:20px;
+
+}
+
+.options a{
+
+color:#00d4ff;
+
+text-decoration:none;
+
+}
+
+button{
+
+width:100%;
+
+padding:14px;
+
+border:none;
+
+border-radius:30px;
+
+font-size:17px;
+
+cursor:pointer;
+
+margin-top:10px;
+
+background:#00bfff;
+
+color:white;
+
+transition:.3s;
+
+}
+
+button:hover{
+
+background:#0095ff;
+
+transform:scale(1.03);
+
+}
+
+.back{
+
+background:#555;
+
+}
+
+.back:hover{
+
+background:#333;
+
+}
+
+.footer{
+
+margin-top:20px;
+
+font-size:13px;
+
+color:#ddd;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="circle"></div>
+<div class="circle"></div>
+
+<div class="login">
+
+<img src="logo.png" class="logo">
+
+<h1>HOST / ADMIN LOGIN</h1>
+
+<p>KESHAVA MEMORIAL COLLEGE OF ENGINEERING</p>
+
+<div class="input">
+
+<label>Admin ID</label>
+
+<input
+type="text"
+id="adminId"
+placeholder="Enter Admin ID">
+
+</div>
+
+<div class="input">
+
+<label>Password</label>
+
+<input
+type="password"
+id="password"
+placeholder="Enter Password">
+
+</div>
+
+<div class="options">
+
+<label>
+
+<input
+type="checkbox"
+onclick="showPassword()">
+
+Show Password
+
+</label>
+
+<a href="#">Forgot Password?</a>
+
+</div>
+
+<button onclick="login()">
+
+LOGIN
+
+</button>
+
+<button class="back"
+onclick="window.location='index.html'">
+
+BACK TO HOME
+
+</button>
+
+<div class="footer">
+
+© 2026 KMCE Attendance Management System
+
+</div>
+
+</div>
+
+<script>
+
+function showPassword(){
+
+let p=document.getElementById("password");
+
+if(p.type=="password")
+
+p.type="text";
+
+else
+
+p.type="password";
+
+}
+
+function login(){
+
+let id=document.getElementById("adminId").value.trim();
+
+let pass=document.getElementById("password").value.trim();
+
+/* Demo Credentials */
+
+if(id=="admin" && pass=="admin123"){
+
+alert("Welcome Admin");
+
+window.location="admin-dashboard.html";
+
+}
+
+else{
+
+alert("Invalid Admin ID or Password");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

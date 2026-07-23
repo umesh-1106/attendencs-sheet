@@ -1,117 +1,94 @@
-// ======================================
+// =====================================
 // KMCE Attendance Management System
-// login.js
-// ======================================
+// Login Database (Demo)
+// =====================================
 
-// Demo Credentials
-const teacherID = "teacher";
-const teacherPassword = "1234";
+// User Database
+const users = [
+    {
+        role: "admin",
+        username: "UMESH1106",
+        password: "UMesh1106@",
+        redirect: "admin-dashboard.html"
+    },
+    {
+        role: "teacher",
+        username: "jagadesh54",
+        password: "12345678900",
+        redirect: "departments.html"
+    }
+];
 
-const adminID = "admin";
-const adminPassword = "admin123";
+// =====================================
+// Login Function
+// =====================================
+function login(role) {
 
-// ------------------------------
-// Teacher Login
-// ------------------------------
-function teacherLogin() {
+    let username, password;
 
-    const id = document.getElementById("teacherId").value.trim();
-    const password = document.getElementById("teacherPassword").value.trim();
-
-    if (id === "" || password === "") {
-        alert("Please enter Teacher ID and Password.");
-        return;
+    if (role === "admin") {
+        username = document.getElementById("adminId").value.trim();
+        password = document.getElementById("adminPassword").value.trim();
+    } else {
+        username = document.getElementById("teacherId").value.trim();
+        password = document.getElementById("teacherPassword").value.trim();
     }
 
-    if (id === teacherID && password === teacherPassword) {
+    const user = users.find(
+        u =>
+            u.role === role &&
+            u.username === username &&
+            u.password === password
+    );
 
-        localStorage.setItem("teacher", id);
+    if (user) {
 
-        alert("Teacher Login Successful!");
+        localStorage.setItem("loggedInUser", user.username);
+        localStorage.setItem("userRole", user.role);
 
-        window.location.href = "departments.html";
+        alert("Login Successful!");
+
+        window.location.href = user.redirect;
 
     } else {
 
-        alert("Invalid Teacher ID or Password.");
+        alert("Invalid Username or Password.");
 
     }
-
 }
 
-// ------------------------------
-// Admin Login
-// ------------------------------
-function adminLogin() {
-
-    const id = document.getElementById("adminId").value.trim();
-    const password = document.getElementById("adminPassword").value.trim();
-
-    if (id === "" || password === "") {
-        alert("Please enter Admin ID and Password.");
-        return;
-    }
-
-    if (id === adminID && password === adminPassword) {
-
-        localStorage.setItem("admin", id);
-
-        alert("Admin Login Successful!");
-
-        window.location.href = "admin-dashboard.html";
-
-    } else {
-
-        alert("Invalid Admin ID or Password.");
-
-    }
-
-}
-
-// ------------------------------
-// Show / Hide Password
-// ------------------------------
-function togglePassword(inputId) {
-
-    const input = document.getElementById(inputId);
-
-    if (input.type === "password") {
-        input.type = "text";
-    } else {
-        input.type = "password";
-    }
-
-}
-
-// ------------------------------
+// =====================================
 // Logout
-// ------------------------------
+// =====================================
 function logout() {
 
-    localStorage.removeItem("teacher");
-    localStorage.removeItem("admin");
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("userRole");
 
     alert("Logged Out Successfully");
 
     window.location.href = "index.html";
-
 }
 
-// ------------------------------
+// =====================================
 // Check Login
-// ------------------------------
-function checkTeacherLogin() {
+// =====================================
+function checkAdmin() {
 
-    if (!localStorage.getItem("teacher")) {
-        window.location.href = "teacher-login.html";
+    if (
+        localStorage.getItem("userRole") !== "admin"
+    ) {
+        window.location.href = "admin-login.html";
     }
 
 }
 
-function checkAdminLogin() {
+function checkTeacher() {
 
-    if (!localStorage.getItem("admin")) {
-        window.location.href = "admin-login.html";
+    if (
+        localStorage.getItem("userRole") !== "teacher"
+    ) {
+        window.location.href = "teacher-login.html";
     }
 
 }
